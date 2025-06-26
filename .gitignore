@@ -1,0 +1,426 @@
+# 🏀 AWS Serverless King - Q Developer + Bedrock .gitignore
+
+# ===================================
+# AWS & Serverless Specific
+# ===================================
+.aws/
+aws-exports.js
+amplify/
+.amplifyrc
+.serverless/
+serverless.yml.bak
+
+# AWS Lambda deployment packages
+*.zip
+deployment/*.zip
+!deployment/README.md
+
+# AWS SAM
+.aws-sam/
+samconfig.toml
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+terraform.tfvars.json
+
+# CloudFormation
+packaged-template.yaml
+packaged-template.yml
+
+# ===================================
+# Environment & Secrets
+# ===================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# API Keys and Tokens
+**/secrets.json
+**/config/secrets.json
+github_token.txt
+aws_credentials.txt
+
+# ===================================
+# Python Specific
+# ===================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.conda/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# ===================================
+# Node.js Specific (for any frontend)
+# ===================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+storybook-static
+
+# Temporary folders
+tmp/
+temp/
+
+# ===================================
+# IDE & Editor Files
+# ===================================
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+# JetBrains IDEs
+.idea/
+*.swp
+*.swo
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*~
+*.swp
+*.swo
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ===================================
+# Operating System Files
+# ===================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.tmp
+*.temp
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ===================================
+# Logs & Debug Files
+# ===================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Debug logs
+debug.log
+error.log
+combined.log
+
+# ===================================
+# Database Files
+# ===================================
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# ===================================
+# Backup Files
+# ===================================
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+*.swp
+*.tmp
+
+# ===================================
+# Archive Files
+# ===================================
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.war
+*.ear
+*.sar
+*.class
+
+# ===================================
+# Q Developer & AI Specific
+# ===================================
+# Model files and caches
+models/
+*.model
+*.pkl
+*.pickle
+ai_cache/
+embeddings/
+vector_store/
+
+# Training data
+training_data/
+datasets/
+*.csv
+*.json.gz
+
+# ===================================
+# Testing & Coverage
+# ===================================
+test-results/
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# ===================================
+# Documentation Build
+# ===================================
+docs/_build/
+docs/build/
+site/
+
+# ===================================
+# Serverless King Specific
+# ===================================
+# Temporary analysis files
+temp_analysis/
+debug_output/
+test_repos/
+
+# Local development
+local_test.py
+debug_*.py
+scratch_*.py
+
+# Performance logs
+performance.log
+timing.log
+
+# ===================================
+# Keep These Important Files
+# ===================================
+!README.md
+!DEPLOYMENT.md
+!COMMIT_SUMMARY.md
+!VICTORY_CHANGELOG.md
+!requirements.txt
+!package.json
+!Dockerfile
+!docker-compose.yml
+!.github/
+!docs/
+!infrastructure/
+!src/
+!tests/
