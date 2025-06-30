@@ -1,10 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { github } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { MarkdownRenderer } from './MarkdownRenderer';
 import { Button } from '@/components/ui/button';
 import { Copy, Download, ArrowLeft, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
@@ -50,209 +47,207 @@ const NaturalReadmePreview: React.FC<NaturalReadmePreviewProps> = ({ content, me
     toast.success('Downloaded README.md');
   };
 
-  const markdownComponents = {
-    code({ node, inline, className, children, ...props }: any) {
-      const match = /language-(\w+)/.exec(className || '');
-      return !inline && match ? (
-        <SyntaxHighlighter
-          style={github}
-          language={match[1]}
-          PreTag="div"
-          customStyle={{
-            background: '#f6f8fa',
-            border: '1px solid #d1d9e0',
-            borderRadius: '6px',
-            fontSize: '14px',
-            margin: '16px 0'
-          }}
-          {...props}
-        >
-          {String(children).replace(/\n$/, '')}
-        </SyntaxHighlighter>
-      ) : (
-        <code 
-          className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono"
-          style={{
-            backgroundColor: 'rgba(175,184,193,0.2)',
-            padding: '0.2em 0.4em',
-            fontSize: '85%',
-            borderRadius: '3px'
-          }}
-          {...props}
-        >
-          {children}
-        </code>
-      );
-    },
-    
-    h1: ({ children }) => (
-      <h1 className="text-3xl font-semibold mb-4 pb-2 border-b border-gray-200">
-        {children}
-      </h1>
-    ),
-    h2: ({ children }) => (
-      <h2 className="text-2xl font-semibold mb-3 mt-6 pb-1 border-b border-gray-200">
-        {children}
-      </h2>
-    ),
-    h3: ({ children }) => (
-      <h3 className="text-xl font-semibold mb-2 mt-5">
-        {children}
-      </h3>
-    ),
-
-    a: ({ href, children }) => (
-      <a 
-        href={href} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="text-blue-600 hover:underline"
-      >
-        {children}
-      </a>
-    ),
-
-    blockquote: ({ children }) => (
-      <blockquote className="border-l-4 border-gray-300 pl-4 py-2 text-gray-600 bg-gray-50 my-4">
-        {children}
-      </blockquote>
-    ),
-
-    table: ({ children }) => (
-      <div className="overflow-x-auto my-4">
-        <table className="min-w-full border-collapse border border-gray-300">
-          {children}
-        </table>
-      </div>
-    ),
-    th: ({ children }) => (
-      <th className="px-3 py-2 text-left font-semibold border border-gray-300 bg-gray-50">
-        {children}
-      </th>
-    ),
-    td: ({ children }) => (
-      <td className="px-3 py-2 border border-gray-300">
-        {children}
-      </td>
-    ),
-
-    ul: ({ children }) => (
-      <ul className="list-disc ml-6 my-4 space-y-1">
-        {children}
-      </ul>
-    ),
-    ol: ({ children }) => (
-      <ol className="list-decimal ml-6 my-4 space-y-1">
-        {children}
-      </ol>
-    ),
-
-    p: ({ children }) => (
-      <p className="mb-4 leading-relaxed">
-        {children}
-      </p>
-    ),
-
-    hr: () => (
-      <hr className="my-6 border-gray-300" />
-    ),
-
-    img: ({ src, alt }) => (
-      <img 
-        src={src} 
-        alt={alt} 
-        className="max-w-full h-auto rounded-lg my-4"
-      />
-    )
-  };
-
   return (
-    <div className="min-h-screen bg-white">
-      {/* Simple header */}
-      <div className="border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-6 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-slate-200">
+        <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => router.back()}
-                className="text-gray-600 hover:text-gray-900"
+                className="flex items-center space-x-2"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back</span>
               </Button>
+              
+              <div className="h-6 w-px bg-slate-300" />
+              
               <div>
-                <h1 className="text-lg font-medium text-gray-900">
+                <h1 className="text-xl font-bold text-slate-900">
                   {metadata.repoName}
                 </h1>
-                <p className="text-sm text-gray-500">
-                  README.md
+                <p className="text-sm text-slate-600">
+                  Generated README Preview
                 </p>
               </div>
             </div>
-            
-            <div className="flex items-center space-x-2">
+
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(metadata.repoUrl, '_blank')}
+                className="flex items-center space-x-2"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>View Repository</span>
+              </Button>
+              
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleCopy}
+                className="flex items-center space-x-2"
               >
-                <Copy className="h-4 w-4 mr-1" />
-                Copy
+                <Copy className="w-4 h-4" />
+                <span>Copy</span>
               </Button>
+              
               <Button
-                variant="outline"
                 size="sm"
                 onClick={handleDownload}
+                className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
-                <Download className="h-4 w-4 mr-1" />
-                Download
+                <Download className="w-4 h-4" />
+                <span>Download</span>
               </Button>
-              {metadata.repoUrl && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.open(metadata.repoUrl, '_blank')}
-                >
-                  <ExternalLink className="h-4 w-4 mr-1" />
-                  GitHub
-                </Button>
-              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Clean content area */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <div 
-          className="prose prose-lg max-w-none"
-          style={{
-            fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif',
-            fontSize: '16px',
-            lineHeight: '1.6',
-            color: '#24292f'
-          }}
-        >
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={markdownComponents}
-          >
-            {content}
-          </ReactMarkdown>
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Sidebar with metadata */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24">
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                  Project Details
+                </h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-slate-600">Repository</label>
+                    <p className="text-sm text-slate-900 font-mono break-all">
+                      {metadata.repoName}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium text-slate-600">Owner</label>
+                    <p className="text-sm text-slate-900">{metadata.owner}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium text-slate-600">Project Type</label>
+                    <p className="text-sm text-slate-900">{metadata.projectType}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium text-slate-600">Primary Language</label>
+                    <p className="text-sm text-slate-900">{metadata.primaryLanguage}</p>
+                  </div>
+                  
+                  {metadata.frameworks && metadata.frameworks.length > 0 && (
+                    <div>
+                      <label className="text-sm font-medium text-slate-600">Frameworks</label>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {metadata.frameworks.map((framework, index) => (
+                          <span
+                            key={index}
+                            className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                          >
+                            {framework}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div>
+                    <label className="text-sm font-medium text-slate-600">Generated</label>
+                    <p className="text-sm text-slate-900">
+                      {new Date(metadata.generatedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  
+                  {metadata.processingTime > 0 && (
+                    <div>
+                      <label className="text-sm font-medium text-slate-600">Processing Time</label>
+                      <p className="text-sm text-slate-900">
+                        {metadata.processingTime.toFixed(1)}s
+                      </p>
+                    </div>
+                  )}
+                  
+                  {metadata.confidence > 0 && (
+                    <div>
+                      <label className="text-sm font-medium text-slate-600">Confidence</label>
+                      <div className="flex items-center space-x-2">
+                        <div className="flex-1 bg-slate-200 rounded-full h-2">
+                          <div
+                            className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full"
+                            style={{ width: `${metadata.confidence * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-sm text-slate-900">
+                          {Math.round(metadata.confidence * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* README Content */}
+          <div className="lg:col-span-3">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-8 py-6 border-b border-slate-200 bg-slate-50">
+                <div className="flex items-center space-x-3">
+                  <div className="flex space-x-1">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  </div>
+                  <span className="text-sm font-medium text-slate-600">README.md</span>
+                </div>
+              </div>
+              
+              <div className="p-8">
+                <MarkdownRenderer content={content} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Simple footer */}
-      <div className="border-t border-gray-200 bg-gray-50 mt-12">
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between text-sm text-gray-500">
-            <div>
-              Generated by Smart ReadmeGen AI
+      {/* Footer */}
+      <div className="border-t border-slate-200 bg-slate-50">
+        <div className="max-w-6xl mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-slate-600">
+              Generated by <span className="font-semibold text-slate-900">Smart ReadmeGen</span> - 
+              AI-Powered Professional README Generation
             </div>
-            <div>
-              {metadata.primaryLanguage} • {(metadata.confidence * 100).toFixed(0)}% confidence
+            
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCopy}
+                className="text-slate-600 hover:text-slate-900"
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                Copy Markdown
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDownload}
+                className="text-slate-600 hover:text-slate-900"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download File
+              </Button>
             </div>
           </div>
         </div>

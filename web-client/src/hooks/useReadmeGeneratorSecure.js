@@ -1,9 +1,13 @@
-import { useState, useCallback } from 'react';
-import { toast } from 'sonner';
+import { useState, useCallback } from "react";
+import { toast } from "sonner";
 
 // SECURE API INTEGRATION - NO AWS CREDENTIALS IN FRONTEND
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'https://ccki297o82.execute-api.us-east-1.amazonaws.com/prod';
-const CLOUDFRONT_URL = process.env.NEXT_PUBLIC_CLOUDFRONT_URL || 'https://d3in1w40kamst9.cloudfront.net';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_GATEWAY_URL ||
+  "https://ccki297o82.execute-api.us-east-1.amazonaws.com/prod";
+const CLOUDFRONT_URL =
+  process.env.NEXT_PUBLIC_CLOUDFRONT_URL ||
+  "https://d3in1w40kamst9.cloudfront.net";
 
 export const useReadmeGeneratorSecure = () => {
   const [loading, setLoading] = useState(false);
@@ -17,19 +21,19 @@ export const useReadmeGeneratorSecure = () => {
     setLoading(true);
     setError(null);
     setResult(null);
-    setProgress('Starting analysis...');
+    setProgress("Starting analysis...");
 
     try {
       // Step 1: Start generation via API Gateway (SECURE)
       const response = await fetch(`${API_BASE_URL}/generate`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({
           github_url: githubUrl,
-          user_email: 'demo@smartreadmegen.com' // You can get this from Cognito auth
+          user_email: "demo@smartreadmegen.com", // You can get this from Cognito auth
         }),
       });
 
@@ -39,15 +43,14 @@ export const useReadmeGeneratorSecure = () => {
 
       const data = await response.json();
       setExecutionArn(data.executionArn);
-      setProgress('Analysis started, monitoring progress...');
+      setProgress("Analysis started, monitoring progress...");
 
       // Step 2: Poll for completion (SECURE)
       await pollExecutionStatus(data.executionArn);
-
     } catch (err) {
-      console.error('Generation error:', err);
+      console.error("Generation error:", err);
       setError(err.message);
-      toast.error('Generation failed', {
+      toast.error("Generation failed", {
         description: err.message,
       });
     } finally {
@@ -66,12 +69,15 @@ export const useReadmeGeneratorSecure = () => {
         setProgress(`Checking progress... (${attempts}/${maxAttempts})`);
 
         // Use API Gateway status endpoint (SECURE)
-        const statusResponse = await fetch(`${API_BASE_URL}/status/${encodeURIComponent(executionArn)}`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-          },
-        });
+        const statusResponse = await fetch(
+          `${API_BASE_URL}/status/${encodeURIComponent(executionArn)}`,
+          {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
 
         if (!statusResponse.ok) {
           throw new Error(`Status check failed: ${statusResponse.status}`);
@@ -79,23 +85,23 @@ export const useReadmeGeneratorSecure = () => {
 
         const statusData = await statusResponse.json();
 
-        if (statusData.status === 'SUCCEEDED') {
+        if (statusData.status === "SUCCEEDED") {
           const output = JSON.parse(statusData.output);
           setResult(output.body);
-          setProgress('Analysis completed successfully!');
-          toast.success('README analysis completed!');
+          setProgress("Analysis completed successfully!");
+          toast.success("README analysis completed!");
           return;
-        } else if (statusData.status === 'FAILED') {
-          throw new Error('Step Functions execution failed');
-        } else if (statusData.status === 'RUNNING' && attempts < maxAttempts) {
+        } else if (statusData.status === "FAILED") {
+          throw new Error("Step Functions execution failed");
+        } else if (statusData.status === "RUNNING" && attempts < maxAttempts) {
           // Continue polling
           setTimeout(poll, 5000); // Poll every 5 seconds
         } else {
-          throw new Error('Execution timeout or unknown status');
+          throw new Error("Execution timeout or unknown status");
         }
       } catch (err) {
         setError(err.message);
-        toast.error('Status check failed', {
+        toast.error("Status check failed", {
           description: err.message,
         });
       }

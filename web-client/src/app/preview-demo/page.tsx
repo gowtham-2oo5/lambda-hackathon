@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 import { generateS3PreviewUrl, generateHistoryPreviewUrl } from '@/utils/previewUrl';
-import { Eye, FileText, History, Zap, AlertCircle, CheckCircle, Info } from 'lucide-react';
+import { Eye, FileText, History, AlertCircle, CheckCircle, Info } from 'lucide-react';
 
 const PreviewDemoPage = () => {
   const router = useRouter();

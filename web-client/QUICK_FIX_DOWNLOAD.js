@@ -20,15 +20,12 @@ const handleDownload = async (format = 'md') => {
     const [, owner, repo] = match;
     console.log('🔧 DEBUGGING - Extracted owner:', owner, 'repo:', repo);
     
-    // FIXED: Use the correct S3 key format from your bucket scan
     const correctS3Key = `generated-readmes/${owner}/${repo}.md`;
     console.log('🔧 DEBUGGING - Using S3 key:', correctS3Key);
     
-    // Try CloudFront URL with correct key
     const cloudFrontUrl = `https://d3in1w40kamst9.cloudfront.net/${correctS3Key}`;
     console.log('🔧 DEBUGGING - CloudFront URL:', cloudFrontUrl);
     
-    // OPTION 1: Try direct download link (bypasses CORS for downloads)
     const a = document.createElement('a');
     a.href = cloudFrontUrl;
     a.download = `${owner}-${repo}-README.${format}`;

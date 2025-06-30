@@ -1,27 +1,26 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  Download, 
-  Copy, 
-  Trash2, 
-  ExternalLink, 
-  Loader2, 
-  FileText, 
-  Clock, 
-  CheckCircle, 
+import {
+  Download,
+  Copy,
+  Trash2,
+  ExternalLink,
+  Loader2,
+  FileText,
+  Clock,
+  CheckCircle,
   AlertCircle,
   Eye,
-  Monitor
+  Monitor,
 } from "lucide-react";
 import { toast } from "sonner";
-import ReadmePreviewModal from '@/components/ReadmePreviewModal';
+import ReadmePreviewModal from "@/components/ReadmePreviewModal";
 import { ReadmeHistoryItem } from "@/types/dashboard";
-import { generateHistoryPreviewUrl, generateS3PreviewUrl } from '@/utils/previewUrl';
 
 interface HistoryItemCardProps {
   item: ReadmeHistoryItem;
@@ -32,78 +31,164 @@ interface HistoryItemCardProps {
   progress: string | null;
 }
 
-const HistoryItemCard: React.FC<HistoryItemCardProps> = ({ 
-  item, 
-  index, 
-  onCopy, 
-  onDownload, 
-  onDelete, 
-  progress 
+const HistoryItemCard: React.FC<HistoryItemCardProps> = ({
+  item,
+  index,
+  onCopy,
+  onDownload,
+  onDelete,
+  progress,
 }) => {
   const router = useRouter();
   const [showPreview, setShowPreview] = useState(false);
-  const [readmeContent, setReadmeContent] = useState<string>('');
+  const [readmeContent, setReadmeContent] = useState<string | null>(null);
+  const [contentFetched, setContentFetched] = useState(false);
   const [loadingContent, setLoadingContent] = useState(false);
   const [contentError, setContentError] = useState<string | null>(null);
 
-  // Fetch README content from the ACTUAL history item data
   const fetchReadmeContent = async () => {
-    console.log('🔧 PREVIEW DEBUG - History item:', item);
-    
-    // First check if we have readmeContent directly in the item
-    if ((item as any).readmeContent) {
-      console.log('🔧 PREVIEW DEBUG - Using readmeContent from history item');
-      setReadmeContent((item as any).readmeContent);
-      setLoadingContent(false);
+    if (contentFetched && readmeContent) {
+      console.log(item.requestId, item.readmeS3Url);
+      console.log("🔧 PREVIEW DEBUG - Using cached content");
       return;
     }
-    
-    // If no direct content, try to fetch from S3 URL
-    if (item.readmeS3Url && item.status === 'completed') {
-      console.log('🔧 PREVIEW DEBUG - Fetching from S3 URL:', item.readmeS3Url);
-      
-      setLoadingContent(true);
-      setContentError(null);
-      
-      try {
-        // Fetch the README content from the S3 URL
-        const response = await fetch(item.readmeS3Url, {
-          method: 'GET',
-          headers: {
-            'Accept': 'text/markdown,text/plain,*/*',
-          },
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch README: ${response.status} - File may not exist yet`);
-        }
-        
-        const content = await response.text();
+
+    console.log("🔧 PREVIEW DEBUG - Fetching content for item:", item);
+
+    setLoadingContent(true);
+    setContentError(null);
+
+    try {
+      // Method 1: Check if content is directly available
+      if ((item as any).readmeContent || item.content) {
+        console.log(
+          "🔧 PREVIEW DEBUG - Using direct content from history item"
+        );
+        const content = (item as any).readmeContent || item.content;
         setReadmeContent(content);
-        console.log('🔧 DASHBOARD DEBUG - Successfully loaded content');
-      } catch (error) {
-        console.error('Error fetching README from CloudFront:', error);
-        setContentError('Failed to load README content - file may not be generated yet');
-        setReadmeContent('# README Not Available\n\nThe README file hasn\'t been generated yet or is still processing. Please try again later.');
-      } finally {
-        setLoadingContent(false);
+        setContentFetched(true);
+        return;
       }
-    } else if (item.content) {
-      setReadmeContent(item.content);
+
+      // Method 2: Try to fetch from API proxy first (more reliable)
+      try {
+        console.log(
+          "🔧 PREVIEW DEBUG - Attempting API fetch for:",
+          item.requestId
+        );
+
+        const apiResponse = await fetch(
+          `/api/readme-content/${item.requestId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          }
+        );
+
+        if (apiResponse.ok) {
+          const apiData = await apiResponse.json();
+          if (apiData.content) {
+            console.log("✅ PREVIEW DEBUG - Successfully fetched via API");
+            setReadmeContent(apiData.content);
+            setContentFetched(true);
+            return;
+          }
+        }
+      } catch (apiError) {
+        console.warn(
+          "⚠️ PREVIEW DEBUG - API fetch failed, trying S3:",
+          apiError
+        );
+      }
+
+      // Method 3: Try to fetch from S3 URL via proxy (to avoid CORS)
+      if (item.readmeS3Url && item.status === "completed") {
+        // The URL should already be correct, but let's ensure it uses the right domain
+        const s3Url = item.readmeS3Url;
+        
+        console.log("🔧 PREVIEW DEBUG - Original S3 URL:", item.readmeS3Url);
+        try {
+          // Use proxy API to avoid CORS issues
+          const proxyResponse = await fetch(`/api/proxy-s3?url=${encodeURIComponent(s3Url)}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            }
+          });
+
+          if (proxyResponse.ok) {
+            const proxyData = await proxyResponse.json();
+            if (proxyData.content) {
+              console.log("✅ PREVIEW DEBUG - Successfully fetched via proxy");
+              setReadmeContent(proxyData.content);
+              setContentFetched(true);
+              return;
+            }
+          } else {
+            const errorData = await proxyResponse.json();
+            console.error("❌ PREVIEW DEBUG - Proxy fetch failed:", errorData);
+          }
+        } catch (proxyError) {
+          console.error("❌ PREVIEW DEBUG - Proxy error:", proxyError);
+        }
+      }
+
+      // Method 4: Generate fallback content
+      console.log("⚠️ PREVIEW DEBUG - Using fallback content");
+      const fallbackContent = `# ${item.repoName || "README"}
+
+> **Note**: Original README content is not currently available.
+
+## 📋 Project Information
+
+- **Repository**: [${item.repoName}](${item.repoUrl})
+- **Status**: ${item.status}
+- **Generated**: ${new Date(item.createdAt).toLocaleDateString()}
+
+## 🔄 Content Status
+
+The README for this repository was generated, but the content is currently not available for preview.
+
+### What you can do:
+1. **Regenerate**: Create a new README for this repository
+2. **Visit Repository**: Check the original repository
+3. **Contact Support**: If this issue persists
+
+---
+
+*Generated by Smart ReadmeGen*`;
+
+      setReadmeContent(fallbackContent);
+      setContentError("Original content not available - using fallback");
+      setContentFetched(true);
+
+      toast.warning("Content not available", {
+        description: "Using fallback README content",
+      });
+    } catch (error) {
+      console.error("❌ PREVIEW DEBUG - Error fetching content:", error);
+      setContentError("Failed to load README content");
+      setReadmeContent(
+        `# ${
+          item.repoName || "README"
+        }\n\nContent temporarily unavailable. Please try again later.`
+      );
+
+      toast.error("Failed to load content", {
+        description: "Please try again later",
+      });
+    } finally {
+      setLoadingContent(false);
     }
   };
 
-  const handlePreviewToggle = () => {
-    if (!showPreview && item.status === 'completed') {
-      // Check if we already have readmeContent in the item
-      if ((item as any).readmeContent) {
-        console.log('🔧 PREVIEW DEBUG - Using existing readmeContent from history item');
-        setReadmeContent((item as any).readmeContent);
-        setLoadingContent(false);
-      } else {
-        // Fetch from S3 URL if no direct content
-        fetchReadmeContent();
-      }
+  const handlePreviewToggle = async () => {
+    if (!showPreview && item.status === "completed") {
+      await fetchReadmeContent();
     }
     setShowPreview(!showPreview);
   };
@@ -112,55 +197,165 @@ const HistoryItemCard: React.FC<HistoryItemCardProps> = ({
     setShowPreview(false);
   };
 
-  const handleCopy = () => {
-    const content = readmeContent || item.content || '';
+  const handleCopy = async () => {
+    if (!readmeContent && item.status === "completed") {
+      await fetchReadmeContent();
+    }
+    const content =
+      readmeContent || `# ${item.repoName}\n\nContent not available`;
     onCopy(content);
   };
 
-  const handleDownload = () => {
-    const content = readmeContent || item.content || '';
-    onDownload(content, item.repoName);
+  const handleDownload = async () => {
+    // DEBUG: Log what content we have
+    console.log('🔍 DOWNLOAD DEBUG - Complete item object:');
+    console.log(JSON.stringify(item, null, 2));
+    console.log('🔍 DOWNLOAD DEBUG - readmeContent field:', (item as any).readmeContent);
+    console.log('🔍 DOWNLOAD DEBUG - readmeS3Url field:', item.readmeS3Url);
+    
+    // Method 1: Use readmeContent directly if available
+    if ((item as any).readmeContent) {
+      const content = (item as any).readmeContent;
+      downloadFile(content, item.repoName);
+      return;
+    }
+    
+    // Method 2: Fetch from S3 URL
+    if (item.readmeS3Url) {
+      try {
+        setLoadingContent(true);
+        
+        // The URL should already be correct, but ensure it uses the right domain
+        let correctedS3Url = item.readmeS3Url;
+        if (correctedS3Url.includes('d3in1w40kamst9.cloudfront.net')) {
+          correctedS3Url = correctedS3Url.replace(
+            'd3in1w40kamst9.cloudfront.net',
+            'd2j9jbqms8047w.cloudfront.net'
+          );
+        }
+        
+        console.log('🔍 DOWNLOAD DEBUG - Fetching from URL:', correctedS3Url);
+        
+        const response = await fetch(correctedS3Url);
+        if (response.ok) {
+          const content = await response.text();
+          downloadFile(content, item.repoName);
+          toast.success('README downloaded successfully!');
+        } else {
+          throw new Error(`Failed to fetch: ${response.status} - ${response.statusText}`);
+        }
+      } catch (error) {
+        console.error('Download error:', error);
+        toast.error('Failed to download README');
+      } finally {
+        setLoadingContent(false);
+      }
+      return;
+    }
+    
+    // Method 3: Fallback - fetch content first then download
+    if (!readmeContent && item.status === "completed") {
+      setLoadingContent(true);
+      await fetchReadmeContent();
+      setLoadingContent(false);
+    }
+
+    const content = readmeContent || `# ${item.repoName}\n\nContent not available`;
+    downloadFile(content, item.repoName);
+  };
+  
+  const downloadFile = (content: string, repoName: string) => {
+    try {
+      const blob = new Blob([content], { type: "text/markdown" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = `${(repoName || "README").replace("/", "-")}-README.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success("README downloaded successfully!");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to download README");
+    }
   };
 
   const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this README generation record?')) {
+    if (
+      confirm("Are you sure you want to delete this README generation record?")
+    ) {
       onDelete(item.requestId);
     }
   };
 
   const handleOpenRepo = () => {
-    window.open(item.repoUrl, '_blank');
+    window.open(item.repoUrl, "_blank");
   };
 
   const handleOpenPreview = () => {
-    // Navigate to the new preview route
-    const previewUrl = generateHistoryPreviewUrl(item.requestId);
-    router.push(previewUrl);
+    // DEBUG: Log all item fields to see what's available
+    console.log("🔍 FULL PREVIEW DEBUG - Complete item object:");
+    console.log(JSON.stringify(item, null, 2));
+    console.log("🔍 FULL PREVIEW DEBUG - Item keys:", Object.keys(item));
+    console.log("🔍 FULL PREVIEW DEBUG - readmeContent field:", item.readmeContent);
+    console.log("🔍 FULL PREVIEW DEBUG - content field:", (item as any).content);
+    console.log("🔍 FULL PREVIEW DEBUG - readmeS3Url field:", item.readmeS3Url);
+    
+    // TEMPORARY: Just open the quick preview modal for now
+    // This will help us see if the content is actually there
+    if (item.readmeContent || (item as any).content) {
+      console.log("✅ Found content, opening quick preview");
+      handlePreviewToggle();
+    } else if (item.readmeS3Url) {
+      console.log("⚠️ No direct content, but found S3 URL, trying to fetch...");
+      handlePreviewToggle(); // This will trigger fetchReadmeContent
+    } else {
+      console.error("❌ No content or S3 URL found");
+      toast.error("README content not available - check console for details");
+    }
   };
 
   const handleOpenPreviewNewTab = () => {
-    // Open preview in new tab
-    const previewUrl = generateHistoryPreviewUrl(item.requestId);
-    window.open(previewUrl, '_blank');
+    // Open preview in new tab with metadata
+    const params = new URLSearchParams({
+      source: "history",
+      repoName: item.repoName || "Unknown Repository",
+      repoUrl: item.repoUrl || "#",
+      owner: item.repoUrl ? item.repoUrl.split("/")[3] || "Unknown" : "Unknown",
+      projectType: item.projectType || "Unknown",
+      primaryLanguage: item.primaryLanguage || "Unknown",
+      frameworks: (item.frameworks || []).join(","),
+      confidence: String(item.confidence || 0),
+      processingTime: String(item.processingTime || 0),
+    });
+
+    const previewUrl = `/preview/${encodeURIComponent(
+      item.requestId
+    )}?${params.toString()}`;
+    window.open(previewUrl, "_blank");
   };
 
   const getStatusBadge = () => {
     switch (item.status) {
-      case 'completed':
+      case "completed":
         return (
           <Badge className="bg-green-100 text-green-800 border-green-200">
             <CheckCircle className="w-3 h-3 mr-1" />
             Completed
           </Badge>
         );
-      case 'processing':
+      case "processing":
         return (
           <Badge className="bg-blue-100 text-blue-800 border-blue-200">
             <Loader2 className="w-3 h-3 mr-1 animate-spin" />
             Processing
           </Badge>
         );
-      case 'failed':
+      case "failed":
         return (
           <Badge className="bg-red-100 text-red-800 border-red-200">
             <AlertCircle className="w-3 h-3 mr-1" />
@@ -186,7 +381,7 @@ const HistoryItemCard: React.FC<HistoryItemCardProps> = ({
   };
 
   const formatProcessingTime = (seconds?: number) => {
-    if (!seconds) return 'N/A';
+    if (!seconds) return "N/A";
     if (seconds < 60) return `${seconds.toFixed(1)}s`;
     return `${Math.floor(seconds / 60)}m ${(seconds % 60).toFixed(0)}s`;
   };
@@ -201,34 +396,36 @@ const HistoryItemCard: React.FC<HistoryItemCardProps> = ({
               <div className="flex items-center space-x-3 mb-2">
                 <FileText className="w-5 h-5 text-blue-600" />
                 <h3 className="font-semibold text-lg text-gray-900">
-                  {item.repoName || 'Unknown Repository'}
+                  {item.repoName || "Unknown Repository"}
                 </h3>
                 {getStatusBadge()}
               </div>
-              
+
               <div className="text-sm text-gray-600 space-y-1">
                 <div className="flex items-center space-x-2">
                   <ExternalLink className="w-4 h-4" />
-                  <a 
-                    href={item.repoUrl} 
-                    target="_blank" 
+                  <a
+                    href={item.repoUrl}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline"
                   >
                     {item.repoUrl}
                   </a>
                 </div>
-                
+
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-1">
                     <Clock className="w-4 h-4" />
                     <span>Created: {formatDate(item.createdAt)}</span>
                   </div>
-                  
+
                   {item.processingTime && (
                     <div className="flex items-center space-x-1">
                       <span>⚡</span>
-                      <span>Processing: {formatProcessingTime(item.processingTime)}</span>
+                      <span>
+                        Processing: {formatProcessingTime(item.processingTime)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -237,21 +434,35 @@ const HistoryItemCard: React.FC<HistoryItemCardProps> = ({
           </div>
 
           {/* Progress indicator for processing items */}
-          {item.status === 'processing' && progress && (
+          {item.status === "processing" && progress && (
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center space-x-2">
                 <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                <span className="text-blue-800 text-sm font-medium">{progress}</span>
+                <span className="text-blue-800 text-sm font-medium">
+                  {progress}
+                </span>
               </div>
             </div>
           )}
 
-          {/* Error display */}
-          {item.status === 'failed' && (
+          {/* Loading indicator when fetching content */}
+          {loadingContent && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                <span className="text-blue-800 text-sm font-medium">
+                  Loading README content...
+                </span>
+              </div>
+            </div>
+          )}
+          {item.status === "failed" && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <div className="text-red-700 text-sm">
                 <span className="font-medium">❌ Generation Failed:</span>
-                <span className="ml-2">{item.error || "Failed to generate README. Please try again."}</span>
+                <span className="ml-2">
+                  {item.error || "Failed to generate README. Please try again."}
+                </span>
               </div>
             </div>
           )}
@@ -259,7 +470,7 @@ const HistoryItemCard: React.FC<HistoryItemCardProps> = ({
           {/* Action Buttons */}
           <div className="flex items-center justify-between pt-4 border-t border-gray-100">
             <div className="flex items-center space-x-2">
-              {item.status === 'completed' && (
+              {item.status === "completed" && (
                 <>
                   <Button
                     variant="outline"
@@ -270,39 +481,50 @@ const HistoryItemCard: React.FC<HistoryItemCardProps> = ({
                     <Monitor className="w-4 h-4" />
                     <span>Full Preview</span>
                   </Button>
-                  
+
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handlePreviewToggle}
+                    disabled={loadingContent}
                     className="flex items-center space-x-1"
                   >
-                    <Eye className="w-4 h-4" />
+                    {loadingContent ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                     <span>Quick View</span>
                   </Button>
-                  
+
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleCopy}
+                    disabled={loadingContent}
                     className="flex items-center space-x-1"
                   >
                     <Copy className="w-4 h-4" />
                     <span>Copy</span>
                   </Button>
-                  
+
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleDownload}
+                    disabled={loadingContent}
                     className="flex items-center space-x-1"
                   >
-                    <Download className="w-4 h-4" />
+                    {loadingContent ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Download className="w-4 h-4" />
+                    )}
                     <span>Download</span>
                   </Button>
                 </>
               )}
-              
+
               <Button
                 variant="outline"
                 size="sm"
@@ -313,7 +535,7 @@ const HistoryItemCard: React.FC<HistoryItemCardProps> = ({
                 <span>Repo</span>
               </Button>
             </div>
-            
+
             <Button
               variant="outline"
               size="sm"
@@ -332,8 +554,8 @@ const HistoryItemCard: React.FC<HistoryItemCardProps> = ({
         isOpen={showPreview}
         onClose={handleModalClose}
         content={readmeContent}
-        repoName={item.repoName || 'Unknown Repository'}
-        repoUrl={item.repoUrl || '#'}
+        repoName={item.repoName || "Unknown Repository"}
+        repoUrl={item.repoUrl || "#"}
         isLoading={loadingContent}
         error={contentError}
         onCopy={onCopy}

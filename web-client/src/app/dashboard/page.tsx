@@ -18,13 +18,12 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useHistoryDashboard } from "@/hooks/useHistoryDashboard";
 import { cognitoAuth, CognitoUser } from "@/lib/cognito-fixed";
-import { ReadmeHistoryItem } from "@/types/dashboard";
 
 // Import our modular components
 import GeneratorForm from "@/components/dashboard/GeneratorForm";
 import StatsCards from "@/components/dashboard/StatsCards";
-import HistoryItemCard from "@/components/dashboard/HistoryItemCard";
-import DashboardDebug from "@/components/dashboard/DashboardDebug";
+import HistoryItemCardSimple from "@/components/dashboard/HistoryItemCardSimple";
+// import DashboardDebug from "@/components/dashboard/DashboardDebug";
 
 // Remove the duplicate interface definition since it's now in types/dashboard.ts
 
@@ -34,8 +33,8 @@ export default function DashboardPage() {
   const router = useRouter();
 
   // Get user email for history hook - FIXED
-  const userEmail = user?.email || '';
-  
+  const userEmail = user?.email || "";
+
   const {
     historyItems: history,
     loading: historyLoading,
@@ -43,7 +42,7 @@ export default function DashboardPage() {
     refetch: fetchHistory,
     deleteHistoryItem,
     copyToClipboard,
-    downloadReadme
+    downloadReadme,
   } = useHistoryDashboard(userEmail);
 
   // Check authentication and load user data
@@ -97,7 +96,6 @@ export default function DashboardPage() {
 
   // Use the hook functions directly - FIXED
   const handleCopy = copyToClipboard;
-  const handleDownload = downloadReadme;
   const handleDelete = async (requestId: string) => {
     try {
       await deleteHistoryItem(requestId);
@@ -168,7 +166,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Debug Info - TEMPORARY */}
-        {userEmail && <DashboardDebug userEmail={userEmail} />}
+        {/* {userEmail && <DashboardDebug userEmail={userEmail} />} */}
 
         {/* Stats Cards */}
         <StatsCards history={history || []} />
@@ -193,7 +191,8 @@ export default function DashboardPage() {
               </div>
 
               <Badge variant="outline">
-                {(history || []).length} {(history || []).length === 1 ? "item" : "items"}
+                {(history || []).length}{" "}
+                {(history || []).length === 1 ? "item" : "items"}
               </Badge>
             </div>
           </CardHeader>
@@ -217,7 +216,7 @@ export default function DashboardPage() {
                   Try Again
                 </Button>
               </div>
-            ) : (!history || history.length === 0) ? (
+            ) : !history || history.length === 0 ? (
               <div className="text-center py-12">
                 <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -230,13 +229,11 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-6">
-                {(history || []).map((item, index) => (
-                  <HistoryItemCard
+                {(history || []).map((item) => (
+                  <HistoryItemCardSimple
                     key={item.requestId}
                     item={item}
-                    index={index}
                     onCopy={handleCopy}
-                    onDownload={handleDownload}
                     onDelete={handleDelete}
                     progress={null} // You can add progress tracking here if needed
                   />

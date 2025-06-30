@@ -14,7 +14,7 @@ const getCloudFrontDomain = (result) => {
   }
   
   // Use the working CloudFront domain
-  return 'd3in1w40kamst9.cloudfront.net';
+  return "d3in1w40kamst9.cloudfront.net";
 };
 
 // Convert markdown to HTML
