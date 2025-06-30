@@ -126,3 +126,12 @@ deploy.sh
 DEPLOYMENT_STATUS.md
 PROJECT_STRUCTURE.md
 update_iam_permissions.json
+
+*.md
+*.json
+deploye_phase1.py
+deploy.sh
+
+lambda/__pycache__
+lambda/package
+lambda/*.zip
