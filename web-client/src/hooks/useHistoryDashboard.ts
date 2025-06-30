@@ -43,7 +43,7 @@ export const useHistoryDashboard = (userEmail: string) => {
     return s3Url;
   }
 
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     if (!userEmail) {
       setLoading(false);
       return;
@@ -136,7 +136,7 @@ export const useHistoryDashboard = (userEmail: string) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userEmail]);
 
   const deleteHistoryItem = async (requestId: string) => {
     try {

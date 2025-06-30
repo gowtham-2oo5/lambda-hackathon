@@ -315,26 +315,6 @@ The README for this repository was generated, but the content is currently not a
     }
   };
 
-  const handleOpenPreviewNewTab = () => {
-    // Open preview in new tab with metadata
-    const params = new URLSearchParams({
-      source: "history",
-      repoName: item.repoName || "Unknown Repository",
-      repoUrl: item.repoUrl || "#",
-      owner: item.repoUrl ? item.repoUrl.split("/")[3] || "Unknown" : "Unknown",
-      projectType: item.projectType || "Unknown",
-      primaryLanguage: item.primaryLanguage || "Unknown",
-      frameworks: (item.frameworks || []).join(","),
-      confidence: String(item.confidence || 0),
-      processingTime: String(item.processingTime || 0),
-    });
-
-    const previewUrl = `/preview/${encodeURIComponent(
-      item.requestId
-    )}?${params.toString()}`;
-    window.open(previewUrl, "_blank");
-  };
-
   const getStatusBadge = () => {
     switch (item.status) {
       case "completed":

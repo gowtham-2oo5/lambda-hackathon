@@ -27,7 +27,6 @@ import { downloadReadme } from '@/utils/fileDownload';
 
 interface HistoryItemCardProps {
   item: ReadmeHistoryItem;
-  index: number;
   onCopy: (content: string) => void;
   onDownload: (content: string, repoName: string) => void;
   onDelete: (requestId: string) => void;
@@ -36,7 +35,6 @@ interface HistoryItemCardProps {
 
 const HistoryItemCardFixed: React.FC<HistoryItemCardProps> = ({ 
   item, 
-  index, 
   onCopy, 
   onDownload, 
   onDelete, 
@@ -178,12 +176,6 @@ const HistoryItemCardFixed: React.FC<HistoryItemCardProps> = ({
   const handleOpenPreview = () => {
     const previewUrl = generateHistoryPreviewUrl(item.requestId);
     router.push(previewUrl);
-  };
-
-  const handleOpenPreviewNewTab = () => {
-    // Open preview in new tab
-    const previewUrl = generateHistoryPreviewUrl(item.requestId);
-    window.open(previewUrl, '_blank');
   };
 
   const getStatusBadge = () => {
