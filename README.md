@@ -80,6 +80,13 @@ Already helping developers document their projects with generated READMEs for ma
 
 ## 📖 Usage
 
+### Current Features
+- ✅ **Generate README** - Create professional documentation from GitHub URLs
+- ✅ **View Generated READMEs** - Browse and download your created documentation
+- ✅ **Copy to Clipboard** - Easy copying of generated content
+- ✅ **Download as File** - Save READMEs locally
+- ⏳ **Delete READMEs** - *Coming soon in next update*
+
 ### Analyze a Repository
 
 ```bash
