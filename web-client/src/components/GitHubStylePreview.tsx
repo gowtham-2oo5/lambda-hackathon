@@ -50,7 +50,7 @@ const GitHubStylePreview: React.FC<GitHubStylePreviewProps> = ({ content, metada
     try {
       await navigator.clipboard.writeText(content);
       toast.success('README copied to clipboard!');
-    } catch (err) {
+    } catch {
       toast.error('Failed to copy to clipboard');
     }
   };
@@ -70,7 +70,7 @@ const GitHubStylePreview: React.FC<GitHubStylePreviewProps> = ({ content, metada
 
   const markdownComponents = {
     // Code blocks with GitHub styling
-    code({ node, inline, className, children, ...props }: any) {
+    code({ inline, className, children, ...props }: any) {
       const match = /language-(\w+)/.exec(className || '');
       return !inline && match ? (
         <SyntaxHighlighter

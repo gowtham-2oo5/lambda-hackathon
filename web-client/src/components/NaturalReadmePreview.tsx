@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { Button } from '@/components/ui/button';
 import { Copy, Download, ArrowLeft, ExternalLink } from 'lucide-react';
@@ -29,7 +29,7 @@ const NaturalReadmePreview: React.FC<NaturalReadmePreviewProps> = ({ content, me
     try {
       await navigator.clipboard.writeText(content);
       toast.success('Copied to clipboard');
-    } catch (err) {
+    } catch {
       toast.error('Failed to copy');
     }
   };

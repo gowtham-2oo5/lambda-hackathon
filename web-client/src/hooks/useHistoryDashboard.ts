@@ -29,7 +29,7 @@ export const useHistoryDashboard = (userEmail: string) => {
   const [historyItems, setHistoryItems] = useState<ReadmeHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [progress, setProgress] = useState<string | null>(null);
+  const [progress] = useState<string | null>(null);
 
   function processUrl(s3Url: string): string {
     if (s3Url.includes("d2j9jbqms8047w.cloudfront.net")) {
@@ -194,7 +194,7 @@ export const useHistoryDashboard = (userEmail: string) => {
     }, 30000); // 30 seconds
 
     return () => clearInterval(interval);
-  }, [userEmail]);
+  }, [userEmail, fetchHistory]);
 
   return {
     historyItems,

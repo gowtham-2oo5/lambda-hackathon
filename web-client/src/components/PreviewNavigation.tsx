@@ -3,7 +3,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Eye, FileText, History, Zap } from 'lucide-react';
+import { Eye, History, Zap } from 'lucide-react';
 
 const PreviewNavigation = () => {
   const router = useRouter();

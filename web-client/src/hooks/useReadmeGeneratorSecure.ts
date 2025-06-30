@@ -84,7 +84,7 @@ export const useReadmeGeneratorSecure = () => {
               output = statusData.output
                 ? JSON.parse(statusData.output)
                 : statusData;
-            } catch (parseError) {
+            } catch {
               console.log(
                 "🔧 Output is not JSON, using as-is:",
                 statusData.output

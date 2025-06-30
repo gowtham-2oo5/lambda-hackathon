@@ -86,7 +86,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
           },
 
           // Beautiful and consistent code blocks
-          code: ({ node, inline, className, children, ...props }) => {
+          code: ({ inline, className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || "")
             const codeString = String(children).replace(/\n$/, "")
 

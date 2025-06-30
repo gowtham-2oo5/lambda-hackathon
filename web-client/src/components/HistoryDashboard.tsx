@@ -10,7 +10,6 @@ const HistoryDashboard: React.FC = () => {
     stats,
     fetchHistory, 
     deleteRecord, 
-    getStats,
     isAuthenticated 
   } = useHistoryDashboard();
 
