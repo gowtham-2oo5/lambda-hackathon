@@ -1,0 +1,168 @@
+{
+  "Comment": "UPDATED Complete README Generator - Using FIXED Lambda Functions",
+  "StartAt": "AnalyzeRepository",
+  "States": {
+    "AnalyzeRepository": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:695221387268:function:fresh-readme-generator",
+      "InputPath": "$",
+      "ResultPath": "$.analysisResult",
+      "Next": "ParseAnalysisResponse",
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "Next": "AnalysisFailure",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "ParseAnalysisResponse": {
+      "Type": "Pass",
+      "Parameters": {
+        "github_url.$": "$.github_url",
+        "user_email.$": "$.user_email",
+        "analysisData.$": "States.StringToJson($.analysisResult.body)",
+        "statusCode.$": "$.analysisResult.statusCode"
+      },
+      "Next": "CheckAnalysisSuccess"
+    },
+    "CheckAnalysisSuccess": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "And": [
+            {
+              "Variable": "$.statusCode",
+              "NumericEquals": 200
+            },
+            {
+              "Variable": "$.analysisData.success",
+              "BooleanEquals": true
+            }
+          ],
+          "Next": "UpdateDynamoDB"
+        }
+      ],
+      "Default": "AnalysisFailure"
+    },
+    "UpdateDynamoDB": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:695221387268:function:smart-readme-dynamodb-handler",
+      "InputPath": "$",
+      "ResultPath": "$.dynamoResult",
+      "Next": "SendEmailNotification",
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "Next": "DynamoDBFailure",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "SendEmailNotification": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:695221387268:function:readme-email-notification",
+      "InputPath": "$",
+      "ResultPath": "$.emailResult",
+      "Next": "ProcessingComplete",
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "Next": "EmailFailure",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "ProcessingComplete": {
+      "Type": "Pass",
+      "Parameters": {
+        "statusCode": 200,
+        "body": {
+          "success": true,
+          "message": "FIXED Complete README generation workflow completed successfully",
+          "github_url.$": "$.github_url",
+          "user_email.$": "$.user_email",
+          "readme_content.$": "$.analysisData.data.readme_content",
+          "readme_url.$": "$.analysisData.data.download_url",
+          "readme_length.$": "$.analysisData.data.readme_length",
+          "s3_location.$": "$.analysisData.data.s3_location",
+          "processing_time.$": "$.analysisData.data.processing_time",
+          "files_analyzed.$": "$.analysisData.data.files_analyzed",
+          "analysis_method.$": "$.analysisData.data.analysis_method",
+          "version.$": "$.analysisData.data.version",
+          "confidence_score": 95,
+          "timestamp.$": "$$.State.EnteredTime",
+          "phase": "FIXED Complete Workflow - Enhanced Analysis + Storage + Notification",
+          "workflow_steps": ["Enhanced Analysis", "DynamoDB Update", "Email Notification"]
+        }
+      },
+      "End": true
+    },
+    "AnalysisFailure": {
+      "Type": "Pass",
+      "Parameters": {
+        "statusCode": 500,
+        "body": {
+          "success": false,
+          "error": "Repository analysis failed",
+          "github_url.$": "$.github_url",
+          "step": "Analysis",
+          "timestamp.$": "$$.State.EnteredTime"
+        }
+      },
+      "End": true
+    },
+    "DynamoDBFailure": {
+      "Type": "Pass",
+      "Parameters": {
+        "statusCode": 500,
+        "body": {
+          "success": false,
+          "error": "DynamoDB update failed",
+          "github_url.$": "$.github_url",
+          "step": "DynamoDB Update",
+          "timestamp.$": "$$.State.EnteredTime"
+        }
+      },
+      "End": true
+    },
+    "EmailFailure": {
+      "Type": "Pass",
+      "Parameters": {
+        "statusCode": 500,
+        "body": {
+          "success": false,
+          "error": "Email notification failed",
+          "github_url.$": "$.github_url",
+          "step": "Email Notification",
+          "timestamp.$": "$$.State.EnteredTime"
+        }
+      },
+      "End": true
+    }
+  }
+}

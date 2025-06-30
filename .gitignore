@@ -1,117 +1,13 @@
-# Smart README Generator - Git Ignore Rules
+# Keep core AWS backend files
+!lambda/
+!smart-readme-generator-workflow.json
+!API_DOCUMENTATION.md
+!README.md
+!LICENSE
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual Environment
-venv/
-env/
-ENV/
-.venv/
-.env
-
-# AWS
-.aws/
-*.pem
-*.key
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Temporary files
-*.tmp
-*.temp
-temp/
-tmp/
-
-# Test outputs (keep organized ones)
-*_response.json
-*_test_*.json
-debug_*.json
-
-# Build artifacts (keep organized ones)
-*.zip
-!final-deployment.zip
-
-# Local development
-.env.local
-.env.development
-.env.test
-.env.production
-
-# Node modules (if frontend added)
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Coverage reports
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Documentation builds
-_build/
-.doctrees/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-
+# Archive and development directories
 archive/
+archive-dev/
 deployment/
 docs/
 examples/
@@ -119,19 +15,29 @@ frontend-docs/
 generated-samples/
 monitoring/
 test-results/
+build/
 
-CHANGELOG.md
-demo_react_repo.json
-deploy.sh
-DEPLOYMENT_STATUS.md
-PROJECT_STRUCTURE.md
-update_iam_permissions.json
+# Development files
+*.zip
+*_response.json
+*_payload.json
+*_test*.json
+debug_*.json
+test_*.json
+*_fixed*.json
+*_new*.json
+deploy*.py
+deploy*.sh
 
+# Exclude most markdown and json files except core ones
 *.md
+!README.md
+!API_DOCUMENTATION.md
 *.json
-deploye_phase1.py
-deploy.sh
+!smart-readme-generator-workflow.json
+!package.json
 
+# Lambda artifacts
 lambda/__pycache__
 lambda/package
 lambda/*.zip
