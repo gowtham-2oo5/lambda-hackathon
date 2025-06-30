@@ -3,8 +3,6 @@
  * Handles fetching README content from various sources
  */
 
-import { toast } from 'sonner';
-
 export interface ContentFetchResult {
   content: string;
   success: boolean;

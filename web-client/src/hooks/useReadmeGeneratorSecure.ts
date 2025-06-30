@@ -187,7 +187,7 @@ export const useReadmeGeneratorSecure = () => {
             userEmail = user.email;
             console.log("🔧 Using user email:", userEmail);
           }
-        } catch (e) {
+        } catch {
           console.log("🔧 No Cognito user found, using demo email");
         }
 

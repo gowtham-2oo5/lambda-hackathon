@@ -18,7 +18,7 @@ export const useReadmeGeneratorSimple = () => {
       if (userResult.success && userResult.user?.email) {
         return userResult.user.email;
       }
-    } catch (e) {
+    } catch {
       // Silent fallback
     }
 
@@ -28,7 +28,7 @@ export const useReadmeGeneratorSimple = () => {
       if (storedUser?.email) {
         return storedUser.email;
       }
-    } catch (e) {
+    } catch {
       // Silent fallback
     }
 
@@ -41,7 +41,7 @@ export const useReadmeGeneratorSimple = () => {
           return user.email;
         }
       }
-    } catch (e) {
+    } catch {
       // Silent fallback
     }
 

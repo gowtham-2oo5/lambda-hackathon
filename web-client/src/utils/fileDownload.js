@@ -5,18 +5,6 @@
 
 import { toast } from 'sonner';
 
-// Get CloudFront domain from result or use default
-const getCloudFrontDomain = (result) => {
-  // Try to get from result first
-  if (result?.readme_generation?.download_url) {
-    const match = result.readme_generation.download_url.match(/https:\/\/([^\/]+)\//);
-    if (match) return match[1];
-  }
-  
-  // Use the working CloudFront domain
-  return "d3in1w40kamst9.cloudfront.net";
-};
-
 // Convert markdown to HTML
 const markdownToHtml = (markdown) => {
   // Simple markdown to HTML conversion
