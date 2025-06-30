@@ -42,7 +42,6 @@ export default function DashboardPage() {
     refetch: fetchHistory,
     deleteHistoryItem,
     copyToClipboard,
-    downloadReadme,
   } = useHistoryDashboard(userEmail);
 
   // Check authentication and load user data
@@ -100,7 +99,7 @@ export default function DashboardPage() {
     try {
       await deleteHistoryItem(requestId);
       toast.success("History item deleted");
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete history item");
     }
   };

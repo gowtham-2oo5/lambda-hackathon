@@ -151,7 +151,7 @@ The README for this repository was generated, but the content is currently not a
     } finally {
       setLoading(false);
     }
-  }, [previewId, searchParams]);
+  }, [previewId, searchParams, source, userEmail, s3Key, repoUrl]);
 
   useEffect(() => {
     console.log("🔍 Preview page mounted with params:", {

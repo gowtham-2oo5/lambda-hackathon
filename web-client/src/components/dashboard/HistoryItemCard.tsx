@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,7 +23,6 @@ import { ReadmeHistoryItem } from "@/types/dashboard";
 
 interface HistoryItemCardProps {
   item: ReadmeHistoryItem;
-  index: number;
   onCopy: (content: string) => void;
   onDownload: (content: string, repoName: string) => void;
   onDelete: (requestId: string) => void;
@@ -33,13 +31,11 @@ interface HistoryItemCardProps {
 
 const HistoryItemCard: React.FC<HistoryItemCardProps> = ({
   item,
-  index,
   onCopy,
   onDownload,
   onDelete,
   progress,
 }) => {
-  const router = useRouter();
   const [showPreview, setShowPreview] = useState(false);
   const [readmeContent, setReadmeContent] = useState<string | null>(null);
   const [contentFetched, setContentFetched] = useState(false);
