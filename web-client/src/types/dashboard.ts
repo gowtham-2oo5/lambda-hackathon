@@ -13,6 +13,7 @@ export interface ReadmeHistoryItem {
   error?: string;
   executionArn?: string;
   readmeS3Url?: string;
+  readmeContent?: string; // Added this field from DynamoDB
   stage?: string;
   updatedAt?: string;
   lastProgress?: string;

@@ -38,20 +38,22 @@ const PreviewPageContent = () => {
 
   // Extract preview ID and source
   const previewId = params.id as string;
-  const source = searchParams.get("source") || "history"; // 'history', 'direct', 'share'
-  const s3Key = searchParams.get("s3Key");
+  const source = searchParams.get("source") || "history";
+  const userEmail = searchParams.get("user") || "";
+  const s3Key = searchParams.get("s3Key"); // Keep this for backward compatibility
   const repoUrl = searchParams.get("repo");
 
   useEffect(() => {
     console.log("🔍 Preview page mounted with params:", {
       previewId,
       source,
+      userEmail,
       s3Key,
       repoUrl,
       searchParams: Object.fromEntries(searchParams.entries()),
     });
     fetchPreviewData();
-  }, [previewId, s3Key]);
+  }, [previewId, source, s3Key, userEmail]);
 
   const fetchPreviewData = async () => {
     setLoading(true);

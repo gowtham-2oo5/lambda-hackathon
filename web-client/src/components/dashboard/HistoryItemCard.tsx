@@ -46,43 +46,28 @@ const HistoryItemCard: React.FC<HistoryItemCardProps> = ({
   const [loadingContent, setLoadingContent] = useState(false);
   const [contentError, setContentError] = useState<string | null>(null);
 
-  // Fetch README content from CloudFront when preview is opened
+  // Fetch README content from the ACTUAL history item data
   const fetchReadmeContent = async () => {
-    if (!item.content && item.status === 'completed') {
-      // FIXED: Use the correct field name from DynamoDB (repoUrl, not GitHubUrl)
-      const githubUrl = item.repoUrl || item.repoUrl || (item as any).github_url;
-      console.log('🔧 DASHBOARD DEBUG - GitHub URL from item:', githubUrl);
-      
-      if (!githubUrl) {
-        setContentError('No GitHub URL found in record');
-        setReadmeContent('# Error Loading README\n\nNo GitHub URL found in the record.');
-        return;
-      }
-      
-      // FIXED: Extract owner and repo from GitHub URL to build correct S3 key
-      const match = githubUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
-      if (!match) {
-        console.log('🔧 DASHBOARD DEBUG - Failed to parse GitHub URL:', githubUrl);
-        setContentError('Invalid GitHub URL format');
-        setReadmeContent('# Error Loading README\n\nInvalid GitHub URL format.');
-        return;
-      }
-      
-      const [, owner, repo] = match;
-      console.log('🔧 DASHBOARD DEBUG - Extracted owner:', owner, 'repo:', repo);
-      
-      // FIXED: Use CloudFront CDN directly (no AWS SDK needed)
-      const s3Key = `generated-readmes/${owner}/${repo}.md`;
-      const cloudFrontUrl = `https://d3in1w40kamst9.cloudfront.net/${s3Key}`;
-      
-      console.log('🔧 DASHBOARD DEBUG - Fetching from CloudFront:', cloudFrontUrl);
+    console.log('🔧 PREVIEW DEBUG - History item:', item);
+    
+    // First check if we have readmeContent directly in the item
+    if ((item as any).readmeContent) {
+      console.log('🔧 PREVIEW DEBUG - Using readmeContent from history item');
+      setReadmeContent((item as any).readmeContent);
+      setLoadingContent(false);
+      return;
+    }
+    
+    // If no direct content, try to fetch from S3 URL
+    if (item.readmeS3Url && item.status === 'completed') {
+      console.log('🔧 PREVIEW DEBUG - Fetching from S3 URL:', item.readmeS3Url);
       
       setLoadingContent(true);
       setContentError(null);
       
       try {
-        // SECURE: Direct CloudFront fetch (no AWS SDK, no credentials needed)
-        const response = await fetch(cloudFrontUrl, {
+        // Fetch the README content from the S3 URL
+        const response = await fetch(item.readmeS3Url, {
           method: 'GET',
           headers: {
             'Accept': 'text/markdown,text/plain,*/*',
@@ -110,7 +95,15 @@ const HistoryItemCard: React.FC<HistoryItemCardProps> = ({
 
   const handlePreviewToggle = () => {
     if (!showPreview && item.status === 'completed') {
-      fetchReadmeContent();
+      // Check if we already have readmeContent in the item
+      if ((item as any).readmeContent) {
+        console.log('🔧 PREVIEW DEBUG - Using existing readmeContent from history item');
+        setReadmeContent((item as any).readmeContent);
+        setLoadingContent(false);
+      } else {
+        // Fetch from S3 URL if no direct content
+        fetchReadmeContent();
+      }
     }
     setShowPreview(!showPreview);
   };
