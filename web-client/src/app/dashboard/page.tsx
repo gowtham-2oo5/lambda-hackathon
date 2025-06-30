@@ -243,7 +243,7 @@ export default function DashboardPage() {
                     item={item}
                     onCopy={handleCopy}
                     onDelete={handleDelete}
-                    progress={null} // You can add progress tracking here if needed
+                    progress={null}
                   />
                 ))}
               </div>
