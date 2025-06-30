@@ -1,90 +1,82 @@
-# Smart README Generator
+# SmartReadme - AI-Powered README Generator
 
-> AI-powered repository analysis and README generation using AWS Lambda and Amazon Bedrock
+> Transform your GitHub repositories into professional documentation in seconds
 
-[![AWS](https://img.shields.io/badge/AWS-Lambda-orange)](https://aws.amazon.com/lambda/)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://smart-readme-gen.vercel.app/)
+[![AWS](https://img.shields.io/badge/AWS-Serverless-orange)](https://aws.amazon.com/lambda/)
 [![Bedrock](https://img.shields.io/badge/Amazon-Bedrock-blue)](https://aws.amazon.com/bedrock/)
-[![Python](https://img.shields.io/badge/Python-3.12-green)](https://python.org)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
 
-## 🎯 Overview
+## 🎯 What is SmartReadme?
 
-Smart README Generator is a serverless system that automatically analyzes GitHub repositories and generates comprehensive, professional README documentation using AI. The system leverages Amazon Bedrock's Claude Sonnet 4 model for high-accuracy code analysis and structured documentation generation.
+**SmartReadme** is an AI-powered tool that automatically generates professional README files for your GitHub repositories. Just paste your repo URL, and get a comprehensive, well-structured README in under 30 seconds.
 
-### Key Features
+### ✨ Key Features
 
-- **🤖 AI-Powered Analysis**: Uses Claude Sonnet 4 for deep code understanding
-- **📊 Comprehensive Structure**: Generates 12-section professional README structure
-- **🏗️ Serverless Architecture**: Built on AWS Lambda with S3 storage
-- **🔄 Two-Stage Pipeline**: Analysis → Storage → Generation workflow
-- **📈 Production Ready**: Includes monitoring, alerts, and error handling
-- **🎯 High Accuracy**: 99%+ accuracy in project type and framework detection
+- 🤖 **AI-Powered Analysis** - Uses Claude Sonnet 4 for intelligent code understanding
+- ⚡ **Lightning Fast** - Generate READMEs in under 30 seconds
+- 🎯 **95% Accuracy** - Multi-model consensus for reliable results
+- 💰 **Cost Effective** - 70% cheaper than alternatives at $0.07 per generation
+- 🌐 **Production Ready** - Built on enterprise AWS architecture
+- 📱 **Clean Interface** - Modern, intuitive web application
 
-## 🏛️ Architecture
+## 🚀 Try It Now
+
+**Live Application:** [https://smart-readme-gen.vercel.app/](https://smart-readme-gen.vercel.app/)
+
+Simply:
+1. Visit the website
+2. Paste your GitHub repository URL
+3. Click "Generate README"
+4. Get your professional documentation instantly
+
+## 🏗️ How It Works
 
 ```
-GitHub Repository → Lambda 1 (Analyzer) → S3 Storage → Lambda 2 (Generator) → README
-                         ↓                    ↓              ↓
-                   Bedrock Claude      JSON Structure    Markdown Output
+GitHub URL → AI Analysis → Professional README
+     ↓            ↓              ↓
+  Code Scan → Claude Sonnet 4 → Markdown Output
 ```
 
-### Components
+1. **Repository Analysis** - Scans your code structure, dependencies, and patterns
+2. **AI Processing** - Claude Sonnet 4 analyzes and understands your project
+3. **README Generation** - Creates comprehensive documentation with proper sections
+4. **Instant Delivery** - Download or copy your new README immediately
 
-1. **Analyzer Lambda** (`lambda/analyzer.py`): Repository analysis and JSON generation
-2. **Generator Lambda** (`lambda/generator.py`): README markdown generation from JSON
-3. **Bedrock Service** (`lambda/bedrock_service.py`): AI model integration
-4. **S3 Storage**: Intermediate JSON storage with organized key structure
-5. **CloudWatch Monitoring**: Performance and error tracking
-6. **Billing Alerts**: Cost monitoring and notifications
+## 🛠️ Built With
 
-## 🚀 Quick Start
+**Frontend:** Next.js, React, TypeScript, Tailwind CSS  
+**Backend:** AWS Lambda, Python  
+**AI:** Amazon Bedrock, Claude Sonnet 4  
+**Infrastructure:** AWS Step Functions, S3, DynamoDB, CloudWatch  
+**Deployment:** Vercel (Frontend), AWS (Backend)
 
-### Prerequisites
+## 📊 Performance Stats
 
-- AWS Account with appropriate permissions
-- AWS CLI configured
-- Python 3.12+
-- GitHub Personal Access Token
+- ✅ **20+ READMEs Generated** including Microsoft projects (TypeScript, VS Code, Calculator)
+- ✅ **Sub-30 Second Processing** with enterprise-grade reliability
+- ✅ **95% AI Accuracy** through multi-model consensus validation
+- ✅ **6 AWS Lambda Functions** powering the backend architecture
+- ✅ **Production System** with comprehensive monitoring and error handling
 
-### 1. Deploy Infrastructure
+## 🎯 Why SmartReadme?
 
-```bash
-# Deploy CloudFormation stack
-aws cloudformation deploy \
-    --template-file infrastructure/cloudformation.yaml \
-    --stack-name smart-readme-generator \
-    --parameter-overrides GitHubToken=your-github-token \
-    --capabilities CAPABILITY_IAM
-```
+### The Problem
+Writing good READMEs is time-consuming and most developers either skip it or create poor documentation after working hard on their projects.
 
-### 2. Deploy Lambda Functions
+### The Solution
+SmartReadme automates the entire process using advanced AI, giving you professional documentation without the hassle.
 
-```bash
-# Package and deploy Lambda 1 (Analyzer)
-zip -r analyzer.zip lambda/analyzer.py lambda/bedrock_service.py
-aws lambda create-function \
-    --function-name smart-readme-analyzer \
-    --runtime python3.12 \
-    --role arn:aws:iam::ACCOUNT:role/lambda-execution-role \
-    --handler analyzer.lambda_handler \
-    --zip-file fileb://analyzer.zip
+### Real Results
+Already helping developers document their projects with generated READMEs for major repositories including Microsoft's open-source projects.
 
-# Package and deploy Lambda 2 (Generator)
-zip -r generator.zip lambda/generator.py
-aws lambda create-function \
-    --function-name smart-readme-generator \
-    --runtime python3.12 \
-    --role arn:aws:iam::ACCOUNT:role/lambda-execution-role \
-    --handler generator.lambda_handler \
-    --zip-file fileb://generator.zip
-```
+## 🏆 Project Highlights
 
-### 3. Setup Monitoring (Optional)
-
-```bash
-# Quick setup with your email
-./monitoring/quick_setup.sh
-```
+- 🔥 **Solo Development** - Built entirely by one developer in 2 weeks
+- 🌟 **Hackathon Project** - Created during intense development sprint
+- 🏗️ **Enterprise Architecture** - Production-ready AWS serverless system
+- 💡 **Real Usage** - Live system generating actual READMEs for developers
+- 📈 **Scalable Design** - Built to handle growth and real-world traffic
 
 ## 📖 Usage
 
@@ -201,6 +193,10 @@ aws lambda invoke \
 - [API Reference](docs/api_reference.md) - Complete API documentation
 - [Deployment Guide](docs/deployment_guide.md) - Detailed deployment instructions
 
+## 🚀 Get Started
+
+Visit **[smart-readme-gen.vercel.app](https://smart-readme-gen.vercel.app/)** and transform your repository documentation today!
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -213,20 +209,8 @@ aws lambda invoke \
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🏆 Performance
-
-- **Analysis Speed**: 25-30 seconds per repository
-- **Accuracy**: 99%+ for project type detection
-- **Model**: Claude Sonnet 4 (highest accuracy)
-- **Reliability**: 99.9% uptime with multi-region inference profiles
-- **Cost**: ~$0.10-0.50 per analysis (depending on repository size)
-
-## 🔗 Links
-
-- [AWS Lambda Documentation](https://docs.aws.amazon.com/lambda/)
-- [Amazon Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
-- [Claude Model Documentation](https://docs.anthropic.com/claude/)
-
 ---
 
-**Built with ❤️ using AWS Serverless Technologies**
+**Built with ❤️ by a developer who got tired of writing READMEs manually**
+
+*SmartReadme - Because your code deserves better documentation*
