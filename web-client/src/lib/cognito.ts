@@ -1,16 +1,16 @@
 // Dynamic AWS SDK imports to avoid build-time issues
 let CognitoIdentityProviderClient: any,
-    InitiateAuthCommand: any,
-    SignUpCommand: any,
-    ConfirmSignUpCommand: any,
-    ResendConfirmationCodeCommand: any,
-    ForgotPasswordCommand: any,
-    ConfirmForgotPasswordCommand: any,
-    GetUserCommand: any,
-    GlobalSignOutCommand: any;
+  InitiateAuthCommand: any,
+  SignUpCommand: any,
+  ConfirmSignUpCommand: any,
+  ResendConfirmationCodeCommand: any,
+  ForgotPasswordCommand: any,
+  ConfirmForgotPasswordCommand: any,
+  GetUserCommand: any,
+  GlobalSignOutCommand: any;
 const initializeAWS = async () => {
   if (!CognitoIdentityProviderClient) {
-    const awsSdk = await import('@aws-sdk/client-cognito-identity-provider');
+    const awsSdk = await import("@aws-sdk/client-cognito-identity-provider");
     CognitoIdentityProviderClient = awsSdk.CognitoIdentityProviderClient;
     InitiateAuthCommand = awsSdk.InitiateAuthCommand;
     SignUpCommand = awsSdk.SignUpCommand;
@@ -166,7 +166,11 @@ class CognitoAuthService {
   }
 
   // Get current user info
-  async getCurrentUser(): Promise<{ success: boolean; user?: CognitoUser; error?: string }> {
+  async getCurrentUser(): Promise<{
+    success: boolean;
+    user?: CognitoUser;
+    error?: string;
+  }> {
     try {
       const tokens = this.getStoredTokens();
       if (!tokens) {
@@ -186,8 +190,13 @@ class CognitoAuthService {
         name: this.getAttribute(response.UserAttributes, "name"),
         given_name: this.getAttribute(response.UserAttributes, "given_name"),
         family_name: this.getAttribute(response.UserAttributes, "family_name"),
-        email_verified: this.getAttribute(response.UserAttributes, "email_verified") === "true",
-        preferred_username: this.getAttribute(response.UserAttributes, "preferred_username"),
+        email_verified:
+          this.getAttribute(response.UserAttributes, "email_verified") ===
+          "true",
+        preferred_username: this.getAttribute(
+          response.UserAttributes,
+          "preferred_username"
+        ),
       };
 
       return { success: true, user };
@@ -243,7 +252,11 @@ class CognitoAuthService {
   }
 
   // Confirm forgot password
-  async confirmForgotPassword(email: string, confirmationCode: string, newPassword: string) {
+  async confirmForgotPassword(
+    email: string,
+    confirmationCode: string,
+    newPassword: string
+  ) {
     try {
       const client = await initializeCognitoClient();
       const command = new ConfirmForgotPasswordCommand({
@@ -289,10 +302,10 @@ class CognitoAuthService {
   isAuthenticated(): boolean {
     const tokens = this.getStoredTokens();
     if (!tokens?.accessToken) return false;
-    
+
     try {
       // Basic JWT token validation (check if not expired)
-      const payload = JSON.parse(atob(tokens.accessToken.split('.')[1]));
+      const payload = JSON.parse(atob(tokens.accessToken.split(".")[1]));
       const currentTime = Math.floor(Date.now() / 1000);
       return payload.exp > currentTime;
     } catch {
@@ -311,8 +324,8 @@ class CognitoAuthService {
   }
 
   // Helper to get attribute value
-  private getAttribute(attributes: any[] | undefined, name: string): string | undefined {
-    return attributes?.find(attr => attr.Name === name)?.Value;
+  private getAttribute(attributes: any[] | undefined, name: string): string {
+    return attributes?.find((attr) => attr.Name === name)?.Value;
   }
 
   // Get Cognito configuration (for debugging)

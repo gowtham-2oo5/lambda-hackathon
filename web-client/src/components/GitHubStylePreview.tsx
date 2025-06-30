@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -268,9 +269,11 @@ const GitHubStylePreview: React.FC<GitHubStylePreviewProps> = ({ content, metada
 
     // GitHub-style images
     img: ({ src, alt }) => (
-      <img 
-        src={src} 
-        alt={alt} 
+      <Image 
+        src={src || ''} 
+        alt={alt || ''} 
+        width={800}
+        height={400}
         className="max-w-full h-auto rounded-lg shadow-sm"
         style={{ maxWidth: '100%', height: 'auto' }}
       />

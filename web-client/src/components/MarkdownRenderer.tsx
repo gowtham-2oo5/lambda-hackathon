@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import Image from "next/image"
 
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -228,9 +229,11 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
 
             if (isBadge) {
               return (
-                <img
+                <Image
                   src={src || "/placeholder.svg"}
-                  alt={alt}
+                  alt={alt || ""}
+                  width={100}
+                  height={20}
                   className="inline-block h-5 max-w-none rounded border border-slate-200 hover:shadow-sm transition-shadow mr-1 mb-1"
                 />
               );
@@ -239,9 +242,11 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
             // Regular images
             return (
               <span className="block my-8">
-                <img
+                <Image
                   src={src || "/placeholder.svg"}
-                  alt={alt}
+                  alt={alt || ""}
+                  width={800}
+                  height={400}
                   className="w-full rounded-lg shadow-lg border border-slate-200 hover:shadow-xl transition-shadow"
                 />
                 {alt && <span className="block text-center text-slate-500 text-sm mt-2 italic">{alt}</span>}

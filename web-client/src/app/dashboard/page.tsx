@@ -168,7 +168,16 @@ export default function DashboardPage() {
         {/* {userEmail && <DashboardDebug userEmail={userEmail} />} */}
 
         {/* Stats Cards */}
-        <StatsCards history={history || []} />
+        <StatsCards
+          history={(history || []).map((item) => ({
+            ...item,
+            userId: item.userId ?? "",
+            confidence:
+              typeof item.confidence === "number"
+                ? { projectType: item.confidence, language: item.confidence }
+                : item.confidence,
+          }))}
+        />
 
         {/* Generator Form */}
         <div className="mb-8">
