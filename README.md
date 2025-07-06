@@ -23,11 +23,13 @@ AI-powered documentation generator that analyzes source code (not existing docs)
 - **🤖 Claude Sonnet 4** integration via Amazon Bedrock
 - **📊 95% accuracy rate** through intelligent file analysis
 - **💰 $0.10 per generation** vs industry average of $0.25+
-- **🔄 2000+ READMEs generated** including Microsoft projects
+- **🔄 27+ READMEs generated** including Microsoft projects
 
 ---
 
 ## 🏗️ **AWS Lambda Architecture**
+
+![SmartReadme Architecture](./SmartReadme_AWS_Architecture_Diagram.png)
 
 ### **3 Specialized Lambda Functions**
 1. **`fresh-readme-generator`** - Main AI engine (Python 3.12, 1024MB)
@@ -35,11 +37,13 @@ AI-powered documentation generator that analyzes source code (not existing docs)
 3. **`readme-email-notification`** - Communication service (256MB)
 
 ### **Complete Serverless Stack**
-- **AWS Step Functions** - Orchestration
+- **AWS Lambda** - 3 specialized functions (1024MB main engine)
 - **Amazon Bedrock** - AI processing (Claude Sonnet 4)
-- **DynamoDB** - Analytics storage
-- **S3 + CloudFront** - File storage with cache-busting
-- **Next.js Frontend** - Deployed on Vercel
+- **DynamoDB** - 3 tables for analytics & persistence
+- **S3 + CloudFront** - File storage with global CDN
+- **API Gateway** - 2 production REST APIs
+
+🚀 **[Complete Deployment Guide](./DEPLOYMENT_GUIDE.md)**
 
 ---
 
@@ -48,10 +52,12 @@ AI-powered documentation generator that analyzes source code (not existing docs)
 ### **🌐 Try It: [smart-readme-gen.vercel.app](https://smart-readme-gen.vercel.app/)**
 
 ### **Real Performance**
-- **Microsoft Calculator**: 92% accuracy, 15 files analyzed
-- **Express.js Framework**: 95% accuracy, 17 files analyzed
-- **Average Processing**: 28.5 seconds
-- **Success Rate**: 98.7%
+- **12+ Production Generations**: 100% success rate
+- **Average Accuracy**: 95%+ confidence for complex projects
+- **Processing Speed**: 34.2 seconds average, sub-45s for all projects
+- **Technology Coverage**: Django, Spring Boot, React, Android, Python microservices
+
+📊 **[View Detailed Performance Metrics](./PERFORMANCE_METRICS.md)**
 
 ---
 
@@ -72,17 +78,19 @@ curl -X POST https://smart-readme-gen.vercel.app/api/generate \
 
 # 2. Deploy Lambda functions
 cd lambda
-zip -r fresh-readme-generator.zip fresh-readme-generator.py
+zip -r fresh-readme-generator.zip enhanced_cache_busting_lambda.py
 aws lambda update-function-code \
   --function-name fresh-readme-generator \
   --zip-file fileb://fresh-readme-generator.zip
 
-# 3. Deploy Step Functions workflow
-aws stepfunctions create-state-machine \
-  --name smart-readme-generator-workflow \
-  --definition file://smart-readme-generator-workflow.json \
-  --role-arn arn:aws:iam::ACCOUNT:role/stepfunctions-role
+# 3. Configure environment variables
+aws lambda update-function-configuration \
+  --function-name fresh-readme-generator \
+  --environment Variables='{"GITHUB_TOKEN":"your_token","ANALYSIS_VERSION":"3.2_cache_busting"}'
 ```
+
+### **Complete Infrastructure Setup**
+🚀 **[Complete Deployment Guide](./DEPLOYMENT_GUIDE.md)** - Full AWS infrastructure setup with CloudFormation templates, IAM roles, and production configuration.
 
 ### **Environment Variables**
 ```bash
@@ -142,6 +150,6 @@ Complete API reference available in [`API_DOCUMENTATION.md`](./API_DOCUMENTATION
 
 ## 📊 **Why This Matters**
 
-SmartReadme demonstrates how **AWS Lambda** enables a solo developer to build enterprise-grade systems that compete with million-dollar platforms. The serverless architecture handles 2000+ generations with minimal operational overhead, proving Lambda's power for AI-driven applications.
+SmartReadme demonstrates how **AWS Lambda** enables a solo developer to build enterprise-grade systems that compete with million-dollar platforms. The serverless architecture handles 27+ generations with minimal operational overhead, proving Lambda's power for AI-driven applications.
 
 **Built with ❤️ by a developer who got tired of writing READMEs manually**
